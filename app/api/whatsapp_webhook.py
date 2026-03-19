@@ -1,27 +1,4 @@
 import os
-from fastapi import APIRouter, Request
-
-router = APIRouter()
-
-VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
-
-
-@router.get("/webhook")
-async def verify(request: Request):
-    params = request.query_params
-
-    mode = params.get("hub.mode")
-    token = params.get("hub.verify_token")
-    challenge = params.get("hub.challenge")
-
-    print("DEBUG:", mode, token, challenge)
-
-    if mode == "subscribe" and token == VERIFY_TOKEN:
-        return int(challenge)
-
-    return {"error": "Verification failed"}
-
-import os
 import requests
 from fastapi import APIRouter, Request
 
@@ -51,6 +28,22 @@ def send_whatsapp_message(to, text):
     print("📤 Enviado:", response.text)
 
 
+# ✅ GET (OBRIGATÓRIO)
+@router.get("/webhook")
+async def verify(request: Request):
+    params = request.query_params
+
+    mode = params.get("hub.mode")
+    token = params.get("hub.verify_token")
+    challenge = params.get("hub.challenge")
+
+    if mode == "subscribe" and token == VERIFY_TOKEN:
+        return int(challenge)
+
+    return {"error": "Verification failed"}
+
+
+# ✅ POST (MENSAGENS)
 @router.post("/webhook")
 async def receive_message(request: Request):
     body = await request.json()
@@ -60,16 +53,25 @@ async def receive_message(request: Request):
         message = body["entry"][0]["changes"][0]["value"]["messages"][0]
         message_id = message["id"]
 
+        # evita duplicação
         if message_id in processed_messages:
             return {"status": "duplicated"}
 
         processed_messages.add(message_id)
 
         from_number = message["from"]
+        text = message["text"]["body"]
+
+        print(f"👤 Cliente disse: {text}")
 
         send_whatsapp_message(
             from_number,
-            "Olá 👋 Bem-vindo!\nVeja nosso catálogo: https://seulink.com"
+            "Olá 👋 Bem-vindo!\nVeja nosso sites abaixo:"
+            "catálogo menina lancamento: https://calpi.com"
+            "catalogo lauban para pedir pix -- Junlei - famoso - Larissa - xaltin"
+            " quer tonchi? xalpai.com"
+
+
         )
 
     except Exception as e:
