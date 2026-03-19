@@ -67,15 +67,7 @@ async def receive_message(request: Request):
 
         print(f"👤 Cliente disse: {text}")
 
-        send_whatsapp_message(
-            from_number,
-            "Olá 👋 Bem-vindo!\nVeja nosso sites abaixo:"
-            "catálogo menina lancamento: https://calpi.com"
-            "catalogo lauban para pedir pix -- Junlei - famoso - Larissa - xaltin"
-            " quer tonchi? xalpai.com"
-
-
-        )
+        send_whatsapp_message(from_number)
 
     except Exception as e:
         print("Erro:", e)
