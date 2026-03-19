@@ -9,7 +9,7 @@ VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
 processed_messages = set()
 
 
-def send_whatsapp_message(to, text):
+def send_whatsapp_message(to):
     url = f"https://graph.facebook.com/v22.0/{os.getenv('PHONE_NUMBER_ID')}/messages"
 
     headers = {
@@ -20,8 +20,11 @@ def send_whatsapp_message(to, text):
     data = {
         "messaging_product": "whatsapp",
         "to": to,
-        "type": "text",
-        "text": {"body": text}
+        "type": "template",
+        "template": {
+            "name": "hello_world",
+            "language": {"code": "en_US"}
+        }
     }
 
     response = requests.post(url, headers=headers, json=data)
