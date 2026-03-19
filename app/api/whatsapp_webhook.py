@@ -9,7 +9,7 @@ VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
 processed_messages = set()
 
 
-def send_whatsapp_message(from_number):
+def send_whatsapp_message(to):
     url = f"https://graph.facebook.com/v22.0/{os.getenv('PHONE_NUMBER_ID')}/messages"
 
     headers = {
@@ -19,7 +19,7 @@ def send_whatsapp_message(from_number):
 
     data = {
         "messaging_product": "whatsapp",
-        "to": to,
+        "to": to,  # ✅ agora existe
         "type": "template",
         "template": {
             "name": "hello_world",
@@ -45,14 +45,13 @@ async def verify(request: Request):
 
     return {"error": "Verification failed"}
 
-
-# ✅ POST (MENSAGENS)
 @router.post("/webhook")
 async def receive_message(request: Request):
     body = await request.json()
     print("📩 Mensagem recebida:", body)
 
     try:
+        # pega a mensagem do WhatsApp
         message = body["entry"][0]["changes"][0]["value"]["messages"][0]
         message_id = message["id"]
 
@@ -62,11 +61,15 @@ async def receive_message(request: Request):
 
         processed_messages.add(message_id)
 
+        # número do cliente
         from_number = message["from"]
+
+        # texto que ele enviou
         text = message["text"]["body"]
 
         print(f"👤 Cliente disse: {text}")
 
+        # 👇 CHAMADA CORRETA (SEM TEXTO)
         send_whatsapp_message(from_number)
 
     except Exception as e:
